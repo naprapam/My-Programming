@@ -1,0 +1,1113 @@
+TA=read.csv('D:/KULIAH/SEMESTER 8/TA/Data/TA.csv');head(TA)
+data.close=TA[,c(3:7)];head(data.close)
+data.return=TA[,c(8:12)];head(data.return)
+TLKM=TA[,3];head(TLKM)
+ISAT=TA[,4];head(ISAT)
+EXCL=TA[,5];head(EXCL)
+IHSG=TA[,6];head(IHSG)
+IDR.USD=TA[,7];head(IDR.USD)
+returnTLKM=TA[,8];head(returnTLKM)
+returnISAT=TA[,9];head(returnISAT)
+returnEXCL=TA[,10];head(returnEXCL)
+returnIHSG=TA[,11];head(returnIHSG)
+returnIDR.USD=TA[,12];head(returnIDR.USD)
+#timeseriesplot
+win.graph()
+par(mfrow=c(1,1))
+plot(as.numeric(TLKM),type='l',ylim=c(1000,8000), lwd=2, col='red', axes=F, 
+     ylab='Stock Price',xlab='Time')
+labels=as.numeric(format(as.Date(TA[,2],"%m/%d/%Y"),"%Y"))
+where.put=c(1,which(diff(labels)==1)+1) 
+axis(side=1, at=where.put, label=labels[where.put], lwd=0.5)
+axis(side=2, at=seq(0,8000, by=500), label=seq(0,8000, by=500), lwd=1) 
+lines(ISAT, type="l", ylim=c(1000, 8000), lwd=2, col="yellow")
+lines(EXCL, type="l", ylim=c(1000, 8000), lwd=2, col="blue")
+legend(5,8000, c("TLKM", "ISAT.JK", "EXCL.JK"), lwd=1,
+       col=c("red", "yellow", "blue"), bg="white")
+
+win.graph()
+par(mfrow=c(1,2))
+plot(as.numeric(IHSG),type='l',ylim=c(2000,15000), lwd=2, col='blue', axes=F, 
+     ylab='Stock Price',xlab='(a)')
+where.put=c(1,which(diff(labels)==1)+1) 
+axis(side=1, at=where.put, label=labels[where.put], lwd=0.5)
+axis(side=2, at=seq(2000,15000, by=500), label=seq(2000,15000, by=500), lwd=1) 
+plot(as.numeric(IDR.USD),type='l',ylim=c(8000,15000), lwd=2, col='red', axes=F, 
+     ylab='Stock Price',xlab='(b)')
+labels=as.numeric(format(as.Date(data[,2],"%m/%d/%Y"),"%Y"))
+where.put=c(1,which(diff(labels)==1)+1) 
+axis(side=1, at=where.put, label=labels[where.put], lwd=0.5)
+axis(side=2, at=seq(8000,15000, by=500), label=seq(8000,15000, by=500), lwd=1) 
+
+#TimeSeriesPlot Return Data Saham
+win.graph()
+returnTLKM=as.numeric(returnTLKM)
+returnEXCL=as.numeric(returnEXCL)
+returnISAT=as.numeric(returnISAT)
+par(mfrow=c(1,1))
+plot(returnTLKM, type="l", ylim=c(-0.3, 0.6), lwd=2, col="red",
+     axes=F, ylab="Return", xlab="Time")
+lebels=as.numeric(format(as.Date(data[,1],"%Y-%m-%d"),"%Y"))
+where.put=c(1,which(diff(labels)==1)+1)
+axis(side=1, at=where.put, label=labels[where.put], lwd=0.5)
+axis(side=2, at=seq(-1, 1, by=0.2), label=seq(-1, 1, by=0.2), lwd=1)
+lines(returnTLKM, type = "l", lwd=2, col="red")
+lines(returnISAT, type = "l", lwd=2, col="yellow")
+lines(returnEXCL, type = "l", lwd=2, col="blue")
+legend(1, 0.6, c("TLKM", "ISAT", "EXCL"), lwd=1, 
+       col = c("red", "yellow", "blue"), bg="white")
+
+#Boxplot
+win.graph()
+par(mfrow=c(1,3))
+boxplot(returnTLKM, symbols="stars", ylab="Return Saham", outcol="red", ylim=c(-0.5,0.9), pch=19, lwd=2.5)
+abline(h=0, col="blue")
+boxplot(returnEXCL, symbols="stars", ylab="Return Saham", outcol="red", ylim=c(-0.5,0.9), pch=19, lwd=2.5)
+abline(h=0, col="blue")
+boxplot(returnISAT, symbols="stars", ylab="Return Saham", outcol="red", ylim=c(-0.5,0.9), pch=19, lwd=2.5)
+abline(h=0, col="blue")
+
+#Boxplot
+win.graph()
+par(mfrow=c(2,2))
+boxplot(returnTLKM~Hari, data=data, symbols="stars", ylab="Return Saham", 
+        names=c("Senin","Selasa","Rabu","Kamis","Jumat"),cex.axis=1.5, ylim=c(-0.5,0.9))
+boxplot(returnEXCL~Hari, data=data, symbols="stars", ylab="Return Saham",
+        names=c("Senin","Selasa","Rabu","Kamis","Jumat"),cex.axis=1.5, ylim=c(-0.5,0.9))
+boxplot(returnISAT~Hari, data=data, symbols="stars", ylab="Return Saham",
+        names=c("Senin","Selasa","Rabu","Kamis","Jumat"),cex.axis=1.5, ylim=c(-0.5,0.9))
+library(doBy)
+summaryBy(return.perusahaan[-1,]~Hari, data[-1,], FUN = c(mean, median, sd))
+
+#ARMA
+#ACF, PACF TLKM
+returnTLKM=as.numeric(returnTLKM[-1])
+returnEXCL=as.numeric(returnEXCL[-1])
+returnISAT=as.numeric(returnISAT[-1])
+win.graph()
+par(mfrow=c(1,2))
+acf(returnTLKM, xlim=c(2,36), ylim=c(-0.1,0.1), main="Return TLKM")
+pacf(returnTLKM, main="Return TLKM")
+
+#ACF, PACF ISAT
+win.graph()
+par(mfrow=c(1,2))
+acf(returnISAT, xlim=c(2,36), ylim=c(-0.1,0.1), main="Return ISAT")
+pacf(returnISAT, main="Return ISAT")
+
+#ACF, PACF EXCL
+win.graph()
+par(mfrow=c(1,2))
+acf(returnEXCL, xlim=c(2,36), ylim=c(-0.1,0.1), main="Return EXCL")
+pacf(returnEXCL, main="Return EXCL")
+
+#ARMAX TLKM
+X=cbind(returnIHSG[-1],returnIDR.USD[-1])
+spec.TLKMX=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(0,0)),
+                      distribution.model = "norm")
+garch.fitTLKMX=ugarchfit(spec = spec.TLKMX, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX
+
+spec.TLKMX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(0,0)),
+                      distribution.model = "norm")
+garch.fitTLKMX=ugarchfit(spec = spec.TLKMX, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX
+
+spec.TLKMX=ugarchspec(mean.model = list(armaOrder=c(1,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(0,0)),
+                      distribution.model = "norm")
+garch.fitTLKMX=ugarchfit(spec = spec.TLKMX, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX
+
+#ARMAX EXCL
+spec.EXCLX=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(0,0)),
+                      distribution.model = "norm")
+garch.fitEXCLX=ugarchfit(spec = spec.EXCLX, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX
+
+spec.EXCLX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(0,0)),
+                      distribution.model = "norm")
+garch.fitEXCLX=ugarchfit(spec = spec.EXCLX, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX
+
+spec.EXCLX=ugarchspec(mean.model = list(armaOrder=c(1,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(0,0)),
+                      distribution.model = "norm")
+garch.fitEXCLX=ugarchfit(spec = spec.EXCLX, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX
+
+#ARMAX ISAT
+spec.ISATX=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(0,0)),
+                      distribution.model = "norm")
+garch.fitISATX=ugarchfit(spec = spec.ISATX, data = returnISAT,
+                         solver = "nloptr")
+garch.fitISATX
+
+spec.ISATX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(0,0)),
+                      distribution.model = "norm")
+garch.fitISATX=ugarchfit(spec = spec.ISATX, data = returnISAT,
+                         solver = "nloptr")
+garch.fitISATX
+
+spec.ISATX=ugarchspec(mean.model = list(armaOrder=c(1,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(0,0)),
+                      distribution.model = "norm")
+garch.fitISATX=ugarchfit(spec = spec.ISATX, data = returnISAT,
+                         solver = "nloptr")
+garch.fitISATX
+
+#residual ARMAX
+res.TLKMX=residuals(garch.fitTLKMX)
+res.TLKMX=as.numeric(res.TLKMX)
+
+res.EXCLX=residuals(garch.fitEXCLX)
+res.EXCLX=as.numeric(res.EXCLX)
+
+res.ISATX=residuals(garch.fitISATX)
+res.ISATX=as.numeric(res.ISATX)
+
+#uji normalitas
+ks.test(res.TLKMX,"pnorm", alternative = c("two.sided"))
+ks.test(res.EXCLX,"pnorm", alternative = c("two.sided"))
+ks.test(res.ISATX,"pnorm", alternative = c("two.sided"))
+
+#Uji LM
+library(FinTS)
+hasilLMX=matrix(0,10,3)
+colnames(hasilLMX)=c('chi-sq TLKMX','chi-sq EXCLX','chi-sq ISATX')
+for (i in  1:10){
+  LM.TLKMX=ArchTest(res.TLKMX, lags=i)
+  LM.EXCLX=ArchTest(res.EXCLX, lags=i)
+  LM.ISATX=ArchTest(res.ISATX, lags=i)
+  hasilLMX[i,1]=LM.TLKMX$statistic
+  hasilLMX[i,2]=LM.EXCLX$statistic
+  hasilLMX[i,3]=LM.ISATX$statistic
+}
+hasilLMX
+
+#ACF PACF resi kuadrat
+#TLKM
+win.graph()
+par(mfrow=c(1,2))
+acf(res.TLKMX^2, main="Residual TLKM", xlim=c(2,34), ylim=c(-0.05,0.2))
+pacf(res.TLKMX^2, main="Residual TLKM")
+
+#EXCL
+win.graph()
+par(mfrow=c(1,2))
+acf(res.EXCLX^2, main="Residual EXCL", xlim=c(2,34), ylim=c(-0.05,0.2))
+pacf(res.EXCLX^2, main="Residual EXCL")
+
+#ISAT
+win.graph()
+par(mfrow=c(1,2))
+acf(res.ISATX^2, main="Residual ISAT", xlim=c(2,34), ylim=c(-0.05,0.2))
+pacf(res.ISATX^2, main="Residual ISAT")
+
+X1=cbind(returnIHSG[-1])
+X2=cbind(returnIDR.USD[-1])
+
+#TLKM
+spec.TLKMX1=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                        include.mean=T, 
+                                          external.regressors=X),
+                      variance.model = list(model="sGARCH",
+                                            garchOrder=c(1,0),
+                                            external.regressors=X),
+                      distribution.model = "norm")
+garch.fitTLKMX1=ugarchfit(spec = spec.TLKMX1, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX1
+
+spec.TLKMX2=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                        include.mean=T, 
+                                        external.regressors=X),
+                      variance.model = list(model="sGARCH",
+                                            garchOrder=c(0,1),
+                                            external.regressors=X),
+                      distribution.model = "norm")
+garch.fitTLKMX2=ugarchfit(spec = spec.TLKMX2, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX2
+
+spec.TLKMX3=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                        include.mean=T, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(1,1), model="sGARCH",
+                                            external.regressors=X),
+                      distribution.model = "norm")
+garch.fitTLKMX3=ugarchfit(spec = spec.TLKMX3, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX3
+
+#EXCL
+spec.EXCLX1=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(1,0), 
+					    model="sGARCH",
+		                            external.regressors=X),
+                      distribution.model = "norm")
+garch.fitEXCLX1=ugarchfit(spec = spec.EXCLX1, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX1
+
+spec.EXCLX2=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                        include.mean=T, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(0,1), model="sGARCH",
+                                            external.regressors=X),
+                      distribution.model = "norm")
+garch.fitEXCLX2=ugarchfit(spec = spec.EXCLX2, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX2
+
+spec.EXCLX3=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                        include.mean=TRUE, 
+                                        external.regressors=X),
+                      variance.model = list(garchOrder=c(1,1), model="sGARCH",
+                                            external.regressors=X),
+                      distribution.model = "norm")
+garch.fitEXCLX3=ugarchfit(spec = spec.EXCLX3, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX3
+
+#ISAT
+spec.ISATX1=ugarchspec(mean.model = list(armaOrder=c(1,1),
+                                         include.mean=T, 
+                                         external.regressors=X),
+                       variance.model = list(garchOrder=c(1,0), model="sGARCH",
+                                             external.regressors=X),
+                       distribution.model = "norm")
+garch.fitISATX1=ugarchfit(spec = spec.ISATX1, data = returnISAT,
+                          solver = "nloptr")
+garch.fitISATX1
+
+spec.ISATX2=ugarchspec(mean.model = list(armaOrder=c(1,1),
+                                         include.mean=T, 
+                                         external.regressors=X),
+                       variance.model = list(garchOrder=c(0,1), model="sGARCH",
+                                             external.regressors=X),
+                       distribution.model = "norm")
+garch.fitISATX2=ugarchfit(spec = spec.ISATX2, data = returnISAT,
+                          solver = "nloptr")
+garch.fitISATX2
+
+spec.ISATX3=ugarchspec(mean.model = list(armaOrder=c(1,1),
+                                         include.mean=T, 
+                                         external.regressors=X),
+                       variance.model = list(garchOrder=c(1,1), 					    model="sGARCH",
+					    external.regressors=X),
+                       distribution.model = "norm")
+garch.fitISATX3=ugarchfit(spec = spec.ISATX3, data = returnISAT,
+                          solver = "nloptr")
+garch.fitISATX3
+
+===================Model Terpilih========================
+#GARCH
+#TLKM
+spec.TLKMX=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                        include.mean=T, 
+                                        external.regressors=X2),
+                      variance.model = list(garchOrder=c(1,0), model="sGARCH",
+                                            external.regressors=X2),
+                      distribution.model = "norm")
+garch.fitTLKMX=ugarchfit(spec = spec.TLKMX, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX
+
+#EXCL
+spec.EXCLX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=NULL),
+                      variance.model = list(garchOrder=c(1,0), model="sGARCH",
+                                            external.regressors=X2),
+                      distribution.model = "norm")
+garch.fitEXCLX=ugarchfit(spec = spec.EXCLX, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX
+
+#ISAT
+spec.ISATX=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                         include.mean=T, 
+                                         external.regressors=X2),
+                       variance.model = list(garchOrder=c(1,0), 					    model="sGARCH",
+					    external.regressors=NULL),
+                       distribution.model = "norm")
+garch.fitISATX=ugarchfit(spec = spec.ISATX, data = returnISAT,
+                          solver = "nloptr")
+garch.fitISATX
+
+#EGARCH
+#TLKM
+spec.TLKMX=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                        include.mean=T, 
+                                        external.regressors=X2),
+                      variance.model = list(garchOrder=c(1,0), model="eGARCH",
+                                            external.regressors=NULL),
+                      distribution.model = "norm")
+garch.fitTLKMX=ugarchfit(spec = spec.TLKMX, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX
+
+#EXCL
+spec.EXCLX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=NULL),
+                      variance.model = list(garchOrder=c(1,0), model="eGARCH",
+                                            external.regressors=X2),
+                      distribution.model = "norm")
+garch.fitEXCLX=ugarchfit(spec = spec.EXCLX, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX
+
+#ISAT
+spec.ISATX=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                         include.mean=T, 
+                                         external.regressors=X2),
+                       variance.model = list(garchOrder=c(1,0), 					    model="eGARCH",
+					    external.regressors=NULL),
+                       distribution.model = "norm")
+garch.fitISATX=ugarchfit(spec = spec.ISATX, data = returnISAT,
+                          solver = "nloptr")
+garch.fitISATX
+
+#GJRGARCH
+#TLKM
+spec.TLKMX=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                        include.mean=F, 
+                                        external.regressors=X2),
+                      variance.model = list(garchOrder=c(0,1), model="gjrGARCH",
+                                            external.regressors=NULL),
+                      distribution.model = "norm")
+garch.fitTLKMX=ugarchfit(spec = spec.TLKMX, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX
+
+#EXCL
+spec.EXCLX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=NULL),
+                      variance.model = list(garchOrder=c(1,0), model="gjrGARCH",
+                                            external.regressors=X2),
+                      distribution.model = "norm")
+garch.fitEXCLX=ugarchfit(spec = spec.EXCLX, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX
+
+#ISAT
+spec.ISATX=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                         include.mean=F, 
+                                         external.regressors=X2),
+                       variance.model = list(garchOrder=c(1,0), 					    model="gjrGARCH",
+					    external.regressors=NULL),
+                       distribution.model = "norm")
+garch.fitISATX=ugarchfit(spec = spec.ISATX, data = returnISAT,
+                          solver = "nloptr")
+garch.fitISATX
+
+#APARCH
+#TLKM
+spec.TLKMX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                        include.mean=F, 
+                                        external.regressors=X1),
+                      variance.model = list(garchOrder=c(0,1), model="apARCH",
+                                            external.regressors=NULL),
+                      distribution.model = "norm")
+garch.fitTLKMX=ugarchfit(spec = spec.TLKMX, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX
+
+#EXCL
+spec.EXCLX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                        include.mean=F, 
+                                        external.regressors=X1),
+                      variance.model = list(garchOrder=c(0,1), model="apARCH",
+                                            external.regressors=NULL),
+                      distribution.model = "norm")
+garch.fitEXCLX=ugarchfit(spec = spec.EXCLX, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX
+
+#ISAT
+spec.ISATX=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                         include.mean=F, 
+                                         external.regressors=NLL),
+                       variance.model = list(garchOrder=c(0,1), 					    model="apARCH",
+					    external.regressors=NULL),
+                       distribution.model = "norm")
+garch.fitISATX=ugarchfit(spec = spec.ISATX, data = returnISAT,
+                          solver = "nloptr")
+garch.fitISATX
+
+#FGARCH
+#TLKM
+spec.TLKMX=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                        include.mean=T, 
+                                        external.regressors=X2),
+                      variance.model = list(garchOrder=c(1,0), model="fGARCH",
+					submodel="GARCH",
+                                            external.regressors=NULL),
+                      distribution.model = "norm")
+garch.fitTLKMX=ugarchfit(spec = spec.TLKMX, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX
+
+#EXCL
+spec.EXCLX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=NULL),
+                      variance.model = list(garchOrder=c(1,0), model="fGARCH",
+					submodel="GARCH",
+                                            external.regressors=X2),
+                      distribution.model = "norm")
+garch.fitEXCLX=ugarchfit(spec = spec.EXCLX, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX
+
+#ISAT
+spec.ISATX=ugarchspec(mean.model = list(armaOrder=c(1,0),
+                                         include.mean=T, 
+                                         external.regressors=X2),
+                       variance.model = list(garchOrder=c(1,0), 					    model="fGARCH", submodel="GARCH"
+					    external.regressors=NULL),
+                       distribution.model = "norm")
+garch.fitISATX=ugarchfit(spec = spec.ISATX, data = returnISAT,
+                          solver = "nloptr")
+garch.fitISATX
+
+#CGARCH
+#TLKM
+spec.TLKMX=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                        include.mean=F, 
+                                        external.regressors=X2),
+                      variance.model = list(garchOrder=c(1,1), model="cGARCH",
+                                            external.regressors=NULL),
+                      distribution.model = "norm")
+garch.fitTLKMX=ugarchfit(spec = spec.TLKMX, data = returnTLKM,
+                         solver = "nloptr")
+garch.fitTLKMX
+
+#EXCL
+spec.EXCLX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                        include.mean=TRUE, 
+                                        external.regressors=NULL),
+                      variance.model = list(garchOrder=c(1,0), model="cGARCH",
+                                            external.regressors=X2),
+                      distribution.model = "norm")
+garch.fitEXCLX=ugarchfit(spec = spec.EXCLX, data = returnEXCL,
+                         solver = "nloptr")
+garch.fitEXCLX
+
+#ISAT
+spec.ISATX=ugarchspec(mean.model = list(armaOrder=c(0,1),
+                                         include.mean=F, 
+                                         external.regressors=X1),
+                       variance.model = list(garchOrder=c(0,1), 					    model="cGARCH",
+					    external.regressors=X2),
+                       distribution.model = "norm")
+garch.fitISATX=ugarchfit(spec = spec.ISATX, data = returnISAT,
+                          solver = "nloptr")
+garch.fitISATX
+
+=========================VaR=============================
+#250
+window=250
+alpha=0.05
+z.alpha=qnorm(alpha, 0, 1)
+z.alpha1=qnorm(1-alpha, 0, 1)
+n=length(returnTLKM)
+loss.garchTLKMX250=rep(0,n)
+prof.garchTLKMX250=rep(0,n)
+VaR.garchTLKMX250=rep(0,n)
+VaR.garchTLKM1X250=rep(0,n)
+
+library(rugarch)
+#Risk
+for(i in window:(n-1)){
+  spec.TLKMXR250=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                           include.mean=FALSE,
+                                           external.regressors=X),
+                         variance.model = list(garchOrder=c(1,1), model="csGARCH",
+                                               external.regressors=NULL),
+                         distribution.model = "norm")
+  modelgarch.fitTLKMXR250=ugarchfit(spec = spec.TLKMXR250, 
+                                data = returnTLKM[(i-window):i],
+                                solver = "nloptr")
+  mean.garchX250=0
+  sd.garchX250=sigma(modelgarch.fitTLKMXR250)[window]
+  VaR.garchTLKMX250[i+1]=mean.garchX250+(sd.garchX250*z.alpha)
+  if(VaR.garchTLKMX250[i+1]>returnTLKM[i+1])
+    loss.garchTLKMX250[i+1]=1
+}
+
+ES.garchTLKMX250 = sum(loss.garchTLKMX250)/(n-window)
+return.outx250=matrix(returnTLKM[(window+1):n], ncol=1)
+VaR.garch.outx250=matrix(VaR.garchTLKMX250[(window+1):n], ncol=1)
+t.garchx250=matrix(1:nrow(return.outx250))
+dat.garchx250=matrix(c(t.garchx250,return.outx250),ncol = 2)
+dat.VaR.garchx250=matrix(c(t.garchx250,VaR.garch.outx250),ncol = 2)
+
+#Profit
+for(i in window:(n-1)){
+  spec.TLKM1X250=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                           include.mean=FALSE,
+                                           external.regressors=X),
+                         variance.model = list(garchOrder=c(1,1), model="csGARCH",
+                                               external.regressors=NULL),
+                         distribution.model = "norm")
+  modelgarch.fitTLKM1X250=ugarchfit(spec = spec.TLKM1X250, 
+                                 data = returnTLKM[(i-window):i],
+                                solver = "nloptr")
+  mean.garch1X250=0
+  sd.garch1X250=sigma(modelgarch.fitTLKM1X250)[window]
+  VaR.garchTLKM1X250[i+1]=mean.garch1X250+(sd.garch1X250*z.alpha1)
+  if(VaR.garchTLKM1X250[i+1]>returnTLKM[i+1])
+    prof.garchTLKMX250[i+1]=1
+}
+ES.garchTLKM1X250 = sum(prof.garchTLKMX250)/(n-window)
+return.out1X250=matrix(returnTLKM[(window+1):n], ncol=1)
+VaR.garch.out1X250=matrix(VaR.garchTLKM1X250[(window+1):n], ncol=1)
+win.graph()
+plot(return.outX250,col="black", ylim=c(-0.2,0.2), xlim=c(0,1800),
+     ylab="Return", xlab="Time")
+t.garch1X250=matrix(1:nrow(return.outX250))
+dat.garch1X250=matrix(c(t.garch1X250, return.out1X250), ncol=2)
+dat.VaR.garch1X250=matrix(c(t.garch1X250, VaR.garch.out1X250), ncol=2)
+lines(VaR.garch.out1X250, col="blue",lwd=1)
+exceed.garch1X250=matrix(dat.garch1X250[dat.VaR.garch1X250[,2]<dat.garch1X250[,2]],
+                      ncol = 2)
+points(exceed.garch1X250, col="red", cex=0.5, lwd=1, pch=19)
+
+lines(VaR.garch.outX250, col="green3", lwd=1)
+exceed.garchX250=matrix(dat.garchX250[dat.VaR.garchX250[,2]>dat.garchX250[,2]],
+                     ncol=2)
+points(exceed.garchX250, col="red", cex=0.5, lwd=1, pch=19)
+
+library(zoo)
+#Data VaR dan Durasi
+a=cbind(VaR.garchTLKMX250, VaR.garchTLKM1X250)
+b=cbind(loss.garchTLKMX250, prof.garchTLKMX250)
+write.zoo(a,"VaR TLKMX AcsG 250.txt", sep="\t")
+write.zoo(b,"Dur TLKMX AcsG 250.txt", sep="\t")
+
+#375
+window=375
+alpha=0.05
+z.alpha=qnorm(alpha, 0, 1)
+z.alpha1=qnorm(1-alpha, 0, 1)
+n=length(returnTLKM)
+loss.garchTLKMX375=rep(0,n)
+prof.garchTLKMX375=rep(0,n)
+VaR.garchTLKMX375=rep(0,n)
+VaR.garchTLKM1X375=rep(0,n)
+
+library(rugarch)
+#Risk
+for(i in window:(n-1)){
+  spec.TLKMXR375=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                           include.mean=FALSE,
+                                           external.regressors=X),
+                         variance.model = list(garchOrder=c(1,1), model="csGARCH",
+                                               external.regressors=NULL),
+                         distribution.model = "norm")
+  modelgarch.fitTLKMXR375=ugarchfit(spec = spec.TLKMXR375, 
+                                data = returnTLKM[(i-window):i],
+                                solver = "nloptr")
+  mean.garchx375=0
+  sd.garchx375=sigma(modelgarch.fitTLKMXR375)[window]
+  VaR.garchTLKMX375[i+1]=mean.garchx375+(sd.garchx375*z.alpha)
+  if(VaR.garchTLKMX375[i+1]>returnTLKM[i+1])
+    loss.garchTLKMX375[i+1]=1
+}
+
+ES.garchTLKMX375 = sum(loss.garchTLKMX375)/(n-window)
+return.outx375=matrix(returnTLKM[(window+1):n], ncol=1)
+VaR.garch.outx375=matrix(VaR.garchTLKMX375[(window+1):n], ncol=1)
+t.garchx375=matrix(1:nrow(return.outx375))
+dat.garchx375=matrix(c(t.garchx375,return.outx375),ncol = 2)
+dat.VaR.garchx375=matrix(c(t.garchx375,VaR.garch.outx375),ncol = 2)
+
+#Profit
+for(i in window:(n-1)){
+  spec.TLKM1X375=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                           include.mean=FALSE,
+                                           external.regressors=X),
+                         variance.model = list(garchOrder=c(1,1), model="csGARCH",
+                                               external.regressors=NULL),
+                         distribution.model = "norm")
+  modelgarch.fitTLKM1X375=ugarchfit(spec = spec.TLKM1X375, 
+                                 data = returnTLKM[(i-window):i],
+                                solver = "nloptr")
+  mean.garch1x375=0
+  sd.garch1x375=sigma(modelgarch.fitTLKM1X375)[window]
+  VaR.garchTLKM1X375[i+1]=mean.garch1x375+(sd.garch1x375*z.alpha1)
+  if(VaR.garchTLKM1X375[i+1]>returnTLKM[i+1])
+    prof.garchTLKMX375[i+1]=1
+}
+ES.garchTLKM1X375 = sum(prof.garchTLKMX375)/(n-window)
+return.out1x375=matrix(returnTLKM[(window+1):n], ncol=1)
+VaR.garch.out1x375=matrix(VaR.garchTLKM1X375[(window+1):n], ncol=1)
+win.graph()
+plot(return.outx375,col="black", ylim=c(-0.2,0.2), xlim=c(0,1650),
+     ylab="Return", xlab="Time")
+t.garch1x375=matrix(1:nrow(return.outx375))
+dat.garch1x375=matrix(c(t.garch1x375, return.out1x375), ncol=2)
+dat.VaR.garch1x375=matrix(c(t.garch1x375, VaR.garch.out1x375), ncol=2)
+lines(VaR.garch.out1x375, col="blue",lwd=1)
+exceed.garch1x375=matrix(dat.garch1x375[dat.VaR.garch1x375[,2]<dat.garch1x375[,2]],
+                      ncol = 2)
+points(exceed.garch1x375, col="red", cex=0.5, lwd=1, pch=19)
+
+lines(VaR.garch.outx375, col="green3", lwd=1)
+exceed.garchx375=matrix(dat.garchx375[dat.VaR.garchx375[,2]>dat.garchx375[,2]],
+                     ncol=2)
+points(exceed.garchx375, col="red", cex=0.5, lwd=1, pch=19)
+
+library(zoo)
+#Data VaR dan Durasi
+a=cbind(VaR.garchTLKMX375, VaR.garchTLKM1X375)
+b=cbind(loss.garchTLKMX375, prof.garchTLKMX375)
+write.zoo(a,"VaR TLKMX AcsG 375.txt", sep="\t")
+write.zoo(b,"Dur TLKMX AcsG 375.txt", sep="\t")
+
+#500
+window=500
+alpha=0.05
+z.alpha=qnorm(alpha, 0, 1)
+z.alpha1=qnorm(1-alpha, 0, 1)
+n=length(returnTLKM)
+loss.garchTLKMX500=rep(0,n)
+prof.garchTLKMX500=rep(0,n)
+VaR.garchTLKMX500=rep(0,n)
+VaR.garchTLKM1X500=rep(0,n)
+
+library(rugarch)
+#Risk
+for(i in window:(n-1)){
+  spec.TLKMXR500=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                           include.mean=FALSE,
+                                           external.regressors=X),
+                         variance.model = list(garchOrder=c(1,1), model="csGARCH",
+                                               external.regressors=NULL),
+                         distribution.model = "norm")
+  modelgarch.fitTLKMXR500=ugarchfit(spec = spec.TLKMXR500, 
+                                data = returnTLKM[(i-window):i],
+                                solver = "nloptr")
+  mean.garchx500=0
+  sd.garchx500=sigma(modelgarch.fitTLKMXR500)[window]
+  VaR.garchTLKMX500[i+1]=mean.garchx500+(sd.garchx500*z.alpha)
+  if(VaR.garchTLKMX500[i+1]>returnTLKM[i+1])
+    loss.garchTLKMX500[i+1]=1
+}
+
+ES.garchTLKMX500 = sum(loss.garchTLKMX500)/(n-window)
+return.outx500=matrix(returnTLKM[(window+1):n], ncol=1)
+VaR.garch.outx500=matrix(VaR.garchTLKMX500[(window+1):n], ncol=1)
+t.garchx500=matrix(1:nrow(return.outx500))
+dat.garchx500=matrix(c(t.garchx500,return.outx500),ncol = 2)
+dat.VaR.garchx500=matrix(c(t.garchx500,VaR.garch.outx500),ncol = 2)
+
+#Profit
+for(i in window:(n-1)){
+  spec.TLKM1X500=ugarchspec(mean.model = list(armaOrder=c(0,2),
+                                           include.mean=FALSE,
+                                           external.regressors=X),
+                         variance.model = list(garchOrder=c(1,1), model="csGARCH",
+                                               external.regressors=NULL),
+                         distribution.model = "norm")
+  modelgarch.fitTLKM1X500=ugarchfit(spec = spec.TLKM1X500, 
+                                 data = returnTLKM[(i-window):i],
+                                solver = "nloptr")
+  mean.garch1x500=0
+  sd.garch1x500=sigma(modelgarch.fitTLKM1X500)[window]
+  VaR.garchTLKM1X500[i+1]=mean.garch1x500+(sd.garch1x500*z.alpha1)
+  if(VaR.garchTLKM1X500[i+1]>returnTLKM[i+1])
+    prof.garchTLKMX500[i+1]=1
+}
+ES.garchTLKM1X500 = sum(prof.garchTLKMX500)/(n-window)
+return.out1x500=matrix(returnTLKM[(window+1):n], ncol=1)
+VaR.garch.out1x500=matrix(VaR.garchTLKM1X500[(window+1):n], ncol=1)
+win.graph()
+plot(return.outx500,col="black", ylim=c(-0.2,0.2), xlim=c(0,1550),
+     ylab="Return", xlab="Time")
+t.garch1x500=matrix(1:nrow(return.outx500))
+dat.garch1x500=matrix(c(t.garch1x500, return.out1x500), ncol=2)
+dat.VaR.garch1x500=matrix(c(t.garch1x500, VaR.garch.out1x500), ncol=2)
+lines(VaR.garch.out1x500, col="blue",lwd=1)
+exceed.garch1x500=matrix(dat.garch1x500[dat.VaR.garch1x500[,2]<dat.garch1x500[,2]],
+                      ncol = 2)
+points(exceed.garch1x500, col="red", cex=0.5, lwd=1, pch=19)
+
+lines(VaR.garch.outx500, col="green3", lwd=1)
+exceed.garchx500=matrix(dat.garchx500[dat.VaR.garchx500[,2]>dat.garchx500[,2]],
+                     ncol=2)
+points(exceed.garchx500, col="red", cex=0.5, lwd=1, pch=19)
+
+library(zoo)
+#Data VaR dan Durasi
+a=cbind(VaR.garchTLKMX500, VaR.garchTLKM1X500)
+b=cbind(loss.garchTLKMX500, prof.garchTLKMX500)
+write.zoo(a,"VaR TLKMX AcsG 500.txt", sep="\t")
+write.zoo(b,"Dur TLKMX AcsG 500.txt", sep="\t")
+
+==NB : Perusahaan dan Model VaR disesuaikan dengan Data==
+
+=======================CVaR==============================
+#CVaR 250
+garchTLKMX250=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/TLKM/VaR/VaR TLKMX AeG 250.txt", 
+				sep = "\t", header = TRUE)
+garchISATX250=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/ISAT/VaR/VaR ISATX AeG 250.txt",
+				sep = "\t", header = TRUE)
+garchEXCLX250=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/EXCL/VaR/VaR EXCLX AeG 250.txt",
+				sep = "\t", header = TRUE)
+
+n=length(garchTLKMX250[,2])
+#loss data 250
+VaR.garchTLKMX250=garchTLKMX250[,2]
+VaR.garchTLKMX250=VaR.garchTLKMX250[251:n]
+VaR.garchISATX250=garchISATX250[,2]
+VaR.garchISATX250=VaR.garchISATX250[251:n]
+VaR.garchEXCLX250=garchEXCLX250[,2]
+VaR.garchEXCLX250=VaR.garchEXCLX250[251:n]
+#profit data 250
+VaR.garchTLKMX250=garchTLKMX250[,3]
+VaR.garchTLKMX250=VaR.garchTLKMX250[251:n]
+VaR.garchISATX250=garchISATX250[,3]
+VaR.garchISATX250=VaR.garchISATX250[251:n]
+VaR.garchEXCLX250=garchEXCLX250[,3]
+VaR.garchEXCLX250=VaR.garchTLKMX250[251:n]
+
+#data 250
+n=length(returnTLKM)
+returnTLKMCVaRX=returnTLKM[251:n]
+t=length(VaR.garchTLKMX250)
+library(quantreg)
+
+#window 250 TLKM
+window=250
+loss.garchCVaRXTLKM=rep(0,(t-window))
+CVaRX.TLKM=rep(0,(t-window))
+
+#loss
+for(i in window:(t-1)){
+  reg=rq(returnTLKMCVaRX[(i-window+1):i]~
+           VaR.garchEXCLX250[(i-window+1):i]+
+           VaR.garchISATX250[(i-window+1):i],tau=0.05)$fitted.values
+  CVaRX.TLKM[(i-window)+1]=reg
+  if(CVaRX.TLKM[(i-window)+1]>returnTLKMCVaRX[i+1])
+    loss.garchCVaRXTLKM[(i-window)+1]=1
+}
+ES.garchCVaRXTLKM=sum(loss.garchCVaRXTLKM)/(t-window)
+return.out=matrix(returnTLKMCVaRX[(window+1):t],ncol=1)
+CVaRX.garch.out=matrix(CVaRX.TLKM[1:(t-window)],ncol=1)
+t.garch=matrix(1:nrow(return.out))
+dat.garch=matrix(c(t.garch,return.out),ncol = 2)
+dat.CVaR.garch=matrix(c(t.garch,CVaRX.garch.out),ncol = 2)
+
+#profit
+prof.garchCVaRXTLKM=rep(0,(t-window))
+CVaRX1.TLKM=rep(0,(t-window))
+for(i in window:(t-1)){
+  reg=rq(returnTLKMCVaRX[(i-window+1):i]~
+           VaR.garchEXCLX250[(i-window+1):i]+
+           VaR.garchISATX250[(i-window+1):i],tau=0.95)$fitted.values
+  CVaRX1.TLKM[(i-window)+1]=reg
+  if(CVaRX1.TLKM[(i-window)+1]<returnTLKMCVaRX[i+1])
+    prof.garchCVaRXTLKM[(i-window)+1]=1
+}
+ES.garchCVaRX1TLKM=sum(prof.garchCVaRXTLKM)/(t-window)
+win.graph()
+return.out=matrix(returnTLKMCVaRX[(window+1):t],ncol=1)
+CVaRX1.garch.out=matrix(CVaRX1.TLKM[1:(t-window)],ncol=1)
+plot(return.out,col="black",ylab="Return",xlab="Time",
+     ylim=c(-0.2,0.2),xlim=c(0,1550))
+t.garch1=matrix(1:nrow(return.out))
+dat.garch1=matrix(c(t.garch1,return.out),ncol = 2)
+dat.CVaR.garch1=matrix(c(t.garch1,CVaRX1.garch.out),ncol = 2)
+lines(CVaRX1.garch.out, col="blue3", lwd=1)
+exceed.garch1=matrix(dat.garch1[dat.CVaR.garch1[,2]<dat.garch1[,2]],
+                     ncol = 2)
+points(exceed.garch1,col="red",cex=1,lwd=2,pch=19)
+lines(CVaRX.garch.out,col="green3",lwd=1)
+exceed.garch=matrix(dat.garch[dat.CVaR.garch[,2]>dat.garch[,2]],
+                    ncol = 2)
+points(exceed.garch,col="red",cex=1,lwd=2,pch=19)
+
+library(zoo)
+#CVaRX dan Durasi
+a=cbind(CVaRX.EXCL,CVaRX1.EXCL)
+b=cbind(loss.garchCVaRXEXCL,prof.garchCVaRXEXCL)
+write.zoo(a,"CVaRX EXCL AgjrG 250.txt",sep="\t")
+write.zoo(b,"Dur CVaRX EXCL AgjrG 250.txt",sep="\t")
+
+#CVaR 375
+garchTLKMX375=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/TLKM/VaR/VaR TLKMX AeG 375.txt", 
+				sep = "\t", header = TRUE)
+garchISATX375=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/ISAT/VaR/VaR ISATX AeG 375.txt",
+				sep = "\t", header = TRUE)
+garchEXCLX375=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/EXCL/VaR/VaR EXCLX AeG 375.txt",
+				sep = "\t", header = TRUE)
+
+n=length(garchTLKMX375[,2])
+#loss data 375
+VaR.garchTLKMX375=garchTLKMX375[,2]
+VaR.garchTLKMX375=VaR.garchTLKMX375[376:n]
+VaR.garchISATX375=garchISATX375[,2]
+VaR.garchISATX375=VaR.garchISATX375[376:n]
+VaR.garchEXCLX375=garchEXCLX375[,2]
+VaR.garchEXCLX375=VaR.garchEXCLX375[376:n]
+#profit data 375
+VaR.garchTLKMX375=garchTLKMX375[,3]
+VaR.garchTLKMX375=VaR.garchTLKMX375[376:n]
+VaR.garchISATX375=garchISATX375[,3]
+VaR.garchISATX375=VaR.garchISATX375[376:n]
+VaR.garchEXCLX375=garchEXCLX375[,3]
+VaR.garchEXCLX375=VaR.garchTLKMX375[376:n]
+
+#data 375
+n=length(returnTLKM)
+returnTLKMCVaRX=returnTLKM[376:n]
+t=length(VaR.garchTLKMX375)
+library(quantreg)
+
+#window 375 TLKM
+window=375
+loss.garchCVaRXTLKM=rep(0,(t-window))
+CVaRX.TLKM=rep(0,(t-window))
+
+#loss
+for(i in window:(t-1)){
+  reg=rq(returnTLKMCVaRX[(i-window+1):i]~
+           VaR.garchEXCLX375[(i-window+1):i]+
+           VaR.garchISATX375[(i-window+1):i],tau=0.05)$fitted.values
+  CVaRX.TLKM[(i-window)+1]=reg
+  if(CVaRX.TLKM[(i-window)+1]>returnTLKMCVaRX[i+1])
+    loss.garchCVaRXTLKM[(i-window)+1]=1
+}
+ES.garchCVaRXTLKM=sum(loss.garchCVaRXTLKM)/(t-window)
+return.out=matrix(returnTLKMCVaRX[(window+1):t],ncol=1)
+CVaRX.garch.out=matrix(CVaRX.TLKM[1:(t-window)],ncol=1)
+t.garch=matrix(1:nrow(return.out))
+dat.garch=matrix(c(t.garch,return.out),ncol = 2)
+dat.CVaR.garch=matrix(c(t.garch,CVaRX.garch.out),ncol = 2)
+
+#profit
+prof.garchCVaRXTLKM=rep(0,(t-window))
+CVaRX1.TLKM=rep(0,(t-window))
+for(i in window:(t-1)){
+  reg=rq(returnTLKMCVaRX[(i-window+1):i]~
+           VaR.garchEXCLX375[(i-window+1):i]+
+           VaR.garchISATX375[(i-window+1):i],tau=0.95)$fitted.values
+  CVaRX1.TLKM[(i-window)+1]=reg
+  if(CVaRX1.TLKM[(i-window)+1]<returnTLKMCVaRX[i+1])
+    prof.garchCVaRXTLKM[(i-window)+1]=1
+}
+ES.garchCVaRX1TLKM=sum(prof.garchCVaRXTLKM)/(t-window)
+win.graph()
+return.out=matrix(returnTLKMCVaRX[(window+1):t],ncol=1)
+CVaRX1.garch.out=matrix(CVaRX1.TLKM[1:(t-window)],ncol=1)
+plot(return.out,col="black",ylab="Return",xlab="Time",
+     ylim=c(-0.2,0.2),xlim=c(0,1250))
+t.garch1=matrix(1:nrow(return.out))
+dat.garch1=matrix(c(t.garch1,return.out),ncol = 2)
+dat.CVaR.garch1=matrix(c(t.garch1,CVaRX1.garch.out),ncol = 2)
+lines(CVaRX1.garch.out, col="blue3", lwd=1)
+exceed.garch1=matrix(dat.garch1[dat.CVaR.garch1[,2]<dat.garch1[,2]],
+                     ncol = 2)
+points(exceed.garch1,col="red",cex=1,lwd=2,pch=19)
+lines(CVaRX.garch.out,col="green3",lwd=1)
+exceed.garch=matrix(dat.garch[dat.CVaR.garch[,2]>dat.garch[,2]],
+                    ncol = 2)
+points(exceed.garch,col="red",cex=1,lwd=2,pch=19)
+
+library(zoo)
+#CVaRX dan Durasi
+a=cbind(CVaRX.EXCL,CVaRX1.EXCL)
+b=cbind(loss.garchCVaRXEXCL,prof.garchCVaRXEXCL)
+write.zoo(a,"CVaRX EXCL AeG 375.txt",sep="\t")
+write.zoo(b,"Dur CVaRX EXCL AeG 375.txt",sep="\t")
+
+#CVaR 500
+garchTLKMX500=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/TLKM/VaR/VaR TLKMX AeG 500.txt", 
+				sep = "\t", header = TRUE)
+garchISATX500=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/ISAT/VaR/VaR ISATX AeG 500.txt",
+				sep = "\t", header = TRUE)
+garchEXCLX500=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/EXCL/VaR/VaR EXCLX AeG 500.txt",
+				sep = "\t", header = TRUE)
+
+n=length(garchTLKMX500[,2])
+#loss data 500
+VaR.garchTLKMX500=garchTLKMX500[,2]
+VaR.garchTLKMX500=VaR.garchTLKMX500[501:n]
+VaR.garchISATX500=garchISATX500[,2]
+VaR.garchISATX500=VaR.garchISATX500[501:n]
+VaR.garchEXCLX500=garchEXCLX500[,2]
+VaR.garchEXCLX500=VaR.garchEXCLX500[501:n]
+#profit data 500
+VaR.garchTLKMX500=garchTLKMX500[,3]
+VaR.garchTLKMX500=VaR.garchTLKMX500[501:n]
+VaR.garchISATX500=garchISATX500[,3]
+VaR.garchISATX500=VaR.garchISATX500[501:n]
+VaR.garchEXCLX500=garchEXCLX500[,3]
+VaR.garchEXCLX500=VaR.garchTLKMX500[501:n]
+
+#data 500
+n=length(returnTLKM)
+returnTLKMCVaRX=returnTLKM[501:n]
+t=length(VaR.garchTLKMX500)
+library(quantreg)
+
+#window 500 TLKM
+window=500
+loss.garchCVaRXTLKM=rep(0,(t-window))
+CVaRX.TLKM=rep(0,(t-window))
+
+#loss
+for(i in window:(t-1)){
+  reg=rq(returnTLKMCVaRX[(i-window+1):i]~
+           VaR.garchEXCLX500[(i-window+1):i]+
+           VaR.garchISATX500[(i-window+1):i],tau=0.05)$fitted.values
+  CVaRX.TLKM[(i-window)+1]=reg
+  if(CVaRX.TLKM[(i-window)+1]>returnTLKMCVaRX[i+1])
+    loss.garchCVaRXTLKM[(i-window)+1]=1
+}
+ES.garchCVaRXTLKM=sum(loss.garchCVaRXTLKM)/(t-window)
+return.out=matrix(returnTLKMCVaRX[(window+1):t],ncol=1)
+CVaRX.garch.out=matrix(CVaRX.TLKM[1:(t-window)],ncol=1)
+t.garch=matrix(1:nrow(return.out))
+dat.garch=matrix(c(t.garch,return.out),ncol = 2)
+dat.CVaR.garch=matrix(c(t.garch,CVaRX.garch.out),ncol = 2)
+
+#profit
+prof.garchCVaRXTLKM=rep(0,(t-window))
+CVaRX1.TLKM=rep(0,(t-window))
+for(i in window:(t-1)){
+  reg=rq(returnTLKMCVaRX[(i-window+1):i]~
+           VaR.garchEXCLX500[(i-window+1):i]+
+           VaR.garchISATX500[(i-window+1):i],tau=0.95)$fitted.values
+  CVaRX1.TLKM[(i-window)+1]=reg
+  if(CVaRX1.TLKM[(i-window)+1]<returnTLKMCVaRX[i+1])
+    prof.garchCVaRXTLKM[(i-window)+1]=1
+}
+ES.garchCVaRX1TLKM=sum(prof.garchCVaRXTLKM)/(t-window)
+win.graph()
+return.out=matrix(returnTLKMCVaRX[(window+1):t],ncol=1)
+CVaRX1.garch.out=matrix(CVaRX1.TLKM[1:(t-window)],ncol=1)
+plot(return.out,col="black",ylab="Return",xlab="Time",
+     ylim=c(-0.2,0.2),xlim=c(0,1050))
+t.garch1=matrix(1:nrow(return.out))
+dat.garch1=matrix(c(t.garch1,return.out),ncol = 2)
+dat.CVaR.garch1=matrix(c(t.garch1,CVaRX1.garch.out),ncol = 2)
+lines(CVaRX1.garch.out, col="blue3", lwd=1)
+exceed.garch1=matrix(dat.garch1[dat.CVaR.garch1[,2]<dat.garch1[,2]],
+                     ncol = 2)
+points(exceed.garch1,col="red",cex=1,lwd=2,pch=19)
+lines(CVaRX.garch.out,col="green3",lwd=1)
+exceed.garch=matrix(dat.garch[dat.CVaR.garch[,2]>dat.garch[,2]],
+                    ncol = 2)
+points(exceed.garch,col="red",cex=1,lwd=2,pch=19)
+
+library(zoo)
+#CVaRX dan Durasi
+a=cbind(CVaRX.EXCL,CVaRX1.EXCL)
+b=cbind(loss.garchCVaRXEXCL,prof.garchCVaRXEXCL)
+write.zoo(a,"CVaRX EXCL AeG 500.txt",sep="\t")
+write.zoo(b,"Dur CVaRX EXCL AeG 500.txt",sep="\t")
+
+==NB :Model dan Perusahaan CVaR disesuaikan dengan data==
+=======Perhitungan ES dilakukan manual di EXCEL==========
+
+#Duration Test
+garchTLKMX250=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/TLKM/Dur/Dur TLKMX AG 250.txt", sep = "\t",
+                       header = TRUE)
+garchEXCLX250=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/TLKM/Dur/Dur EXCLX AG 250.txt", sep = "\t",
+                       header = TRUE)
+garchISATX250=read.csv("D:/KULIAH/SEMESTER 8/TA/Data/TLKM/Dur/Dur ISATX AG 250.txt", sep = "\t",
+                       header = TRUE)
+#loss data 250
+VaR.garchTLKMX250=garchTLKMX250[,2]
+VaR.garchTLKMX250=VaR.garchTLKMX250[251:n]
+VaR.garchEXCLX250=garchEXCLX250[,2]
+VaR.garchEXCLX250=VaR.garchEXCLX250[251:n]
+VaR.garchISATX250=garchISATX250[,2]
+VaR.garchISATX250=VaR.garchISATX250[251:n]
+#profit data 250
+VaR.garchTLKMX250=garchTLKMX250[,3]
+VaR.garchTLKMX250=VaR.garchTLKMX250[251:n]
+VaR.garchEXCLX250=garchEXCLX250[,3]
+VaR.garchEXCLX250=VaR.garchEXCLX250[251:n]
+VaR.garchISATX250=garchISATX250[,3]
+VaR.garchISATX250=VaR.garchISATX250[251:n]
+
+#LOSS
+lossVaRTLKMX250=ifelse(returnTLKM[251:n]<VaR.garchTLKMX250,1,0)
+N=sum(lossVaRTLKMX250)
+TN=length(lossVaRTLKMX250)
+D=diff(which(lossVaRTLKMX250==1))
+C=rep(0,length(D))
+if(lossVaRTLKMX250[1]==0){
+  C=c(1,c)
+  D=c(which(lossVaRTLKMX250==1)[1],D)
+}
+if(lossVaRTLKMX250[TN]==0){
+  C=c(c,1)
+  D=c(D,TN-tail(wich(lossVaRTLKMX250==1),1))
+}
+N=length(D)
+#VaRDurTest
+ujiTLKMX250=VaRDurTest(0.05,returnTLKM[251:n],
+                       VaR.garchTLKMX250)
+print(ujiTLKMX250)
+
+#prof
+profVaRTLKMX250=ifelse(returnTLKMX[251:n]<VaR.garchTLKMX250,1,0)
+N=sum(profVaRTLKMX250)
+TN=length(profVaRTLKMX250)
+D=diff(which(profVaRTLKMX250==1))
+C=rep(0,length(D))
+if(profVaRTLKMX250[1]==0){
+  C=c(1,c)
+  D=c(which(profVaRTLKMX250==1)[1],D)
+}
+if(profVaRTLKMX250[TN]==0){
+  C=c(c,1)
+  D=c(D,TN-tail(wich(profVaRTLKMX250==1),1))
+}
+N=length(D)
+#VaRDurTest
+ujiTLKMX250=VaRDurTest(0.05,returnVaRTLKMX[251:n],
+                        VaR.garchTLKMXX250)
+print(ujiTLKMX250)
+
+===NB : Model, Perusahaan, dan Window disesuaikan Data yang diinginkan===
